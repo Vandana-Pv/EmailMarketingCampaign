@@ -14,11 +14,7 @@ var multer  = require('multer')
 var upload = multer({ dest: 'uploads/' })
 
 // IMPORTING MODELS
-const {Detail,Email,validate} = require('../models/detail');
-
-router.get('/',(req,res) => {
-res.render('form') // RENDER THE FORM PAGE WHERE USER SENDS THE DATA
-})
+const {Detail,Email} = require('../models/detail');
 
 router.post('/', upload.single('profile'), async (req, res)=> {
 
@@ -28,22 +24,19 @@ router.post('/', upload.single('profile'), async (req, res)=> {
     var unsubscribed_emails = [];
     for(let i=0;i<unsubscribedDetails.length;i++){
         unsubscribed_emails.push(unsubscribedDetails[i].email);
+    } 
+
+    const userDetails = await Detail.find({}).select('name subject msg hours day -_id')
+    console.log('.....ud',userDetails)
+    let msg, subject, hours, day;
+    for(let i=userDetails.length-1;i>=0;i--){
+      msg = userDetails[i].msg
+      subject = userDetails[i].subject
+      hours = userDetails[i].hours
+      day = userDetails[i].day
+      break;
     }
-
-    // SAVES THE USER DETAILS GIVEN IN FORM : NAME, DAY, HOURS, SUBJECT, MESSAGE
-    const {error} = validate(req.body);
-    if(error) return res.status(400).send(error.details[0].message);
-
-    let  details = new Detail({ 
-        name: req.body.name,
-        subject: req.body.subject,
-        msg: req.body.msg,
-        hours: req.body.hours,
-        date: req.body.date,
-        day: req.body.day
-    })
-    details = await details.save()
-    console.log('---details---', details)
+    console.log('-------msg',msg,subject,hours,day)
 
     // GETS THE UPLOADED CSV FILE FROM USER
     const file = req.files;
@@ -83,7 +76,7 @@ router.post('/', upload.single('profile'), async (req, res)=> {
                 from: process.env.EMAIL,
                 to: finalEmails,
                 subject: `${subject}`,
-                html: `<p>${message}</p>`
+                html: `<p>${msg} <a href="www.vandanapv.me"> Unsubscribe here</a></p>`
               };
 
               // SAMPLE CRON SCHEDULERS 
@@ -104,8 +97,10 @@ router.post('/', upload.single('profile'), async (req, res)=> {
               //   console.log('Sends at 10 AM at Monday and Saturday');
               // });
 
-              cron.schedule(`* ${hours} ${date} * ${day}`, () => {
+              // SCHEDULES THE TIME 
+              cron.schedule(`* ${hours} * * ${day}`, () => {
                 console.log(`Sends at ${hours} at ${date} on ${day}`);
+                // SENDS EMAIL
                 transporter.sendMail(mailOptions, function(error, info){
                   if (error) {
                     console.log(error);
@@ -114,7 +109,6 @@ router.post('/', upload.single('profile'), async (req, res)=> {
                   }
                 });
               });
-
         
     }).catch(err => {
         // log error if any
@@ -122,17 +116,7 @@ router.post('/', upload.single('profile'), async (req, res)=> {
     });
 
     // RENDERS THE SUCCESSFUL EMAIL SENT PAGE
-    res.render('success',{
-      data: req.body,
-      errors: {
-        message: {
-          msg: 'A message is required'
-        },
-        email: {
-          msg: 'That email doesn‘t look right'
-        }
-      }
-    })
+    res.render('examples/success')
 })
 
 // EXPORTING ROUTER

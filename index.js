@@ -5,6 +5,7 @@ var fileupload = require('express-fileupload')
 // IMPORTING ROUTES
 const unsubscribe = require('./routes/unsubscribe')
 const emailCampaign = require('./routes/fileUpload');
+const sample = require('./routes/sample')
 
 const app = express();
 
@@ -26,6 +27,7 @@ mongoose.connect('mongodb://localhost/campaign')
 // USING ROUTES
 app.use('/unsubscribe',unsubscribe)
 app.use('/emailCampaign',emailCampaign)
+app.use('/dashboard',sample)
 
 // PORT STARTED
 const port = process.env.PORT || 4000;

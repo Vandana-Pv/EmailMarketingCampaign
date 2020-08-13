@@ -9,7 +9,7 @@ const detailSchema = new mongoose.Schema({
     subject:  String,
     msg:  String,
     hours: Number,
-    date: Number,
+    // date: Number,
     day: String
 })
 
@@ -18,7 +18,7 @@ const emailSchema = new mongoose.Schema({
     email: String
 })
 
-const Detail = mongoose.model('Detail', detailSchema);
+const Detail = mongoose.model('DetailList', detailSchema);
 const Email = mongoose.model('Email', emailSchema);
 
 function validateDetail(details){
@@ -28,7 +28,7 @@ function validateDetail(details){
         msg: Joi.string(),
         hours: Joi.number(),
         date: Joi.number(),
-        day: Joi.string().required(),
+        day: Joi.string(),
     })
 
     return schema.validate(details)

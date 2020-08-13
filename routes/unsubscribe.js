@@ -4,7 +4,7 @@ const {Email} = require('../models/detail');
 
 router.get('/',(req,res) => {
     // RENDER THE PAGE WHERE USER SEND THEIR EMAIL
-    res.render('unsubscribe') 
+    res.render('examples/unsubscribe') 
     })
 
 router.post("/",async (req,res) =>{
@@ -14,7 +14,7 @@ router.post("/",async (req,res) =>{
     })
     emaildetails = await emaildetails.save()
     console.log('---details---', emaildetails)
-    res.send(emaildetails);
+    res.render('examples/unsubscription');
 })
 
 // EXPORTING THE ROUTE 
